@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// schema.prisma
+
+model Admin {
+  adminId  String @id @default(auto()) @map("_id") @db.ObjectId
+  password String
+  role     String
+}
+
+model User {
+  userId       String @id @default(auto()) @map("_id") @db.ObjectId
+  userEmail    String
+  userLocation String
+  userInfo     Json
+  password     String
+  vehicleInfo  Car[]
+}
+
+model Dealership {
+  dealershipId       String        @id @default(auto()) @map("_id") @db.ObjectId
+  dealershipEmail    String
+  dealershipName     String
+  dealershipLocation String
+  password           String
+  dealershipInfo     Json
+  cars               Car[]
+  deals              Deal[]
+  soldVehicles       SoldVehicle[]
+}
+
+model Deal {
+  dealId                 String      @id @default(auto()) @map("_id") @db.ObjectId
+  carId                  String      @db.ObjectId
+  dealInfo               Json
+  car                    Car         @relation(fields: [carId], references: [carId])
+  Dealership             Dealership? @relation(fields: [dealershipDealershipId], references: [dealershipId])
+  dealershipDealershipId String?     @db.ObjectId
+}
+
+model Car {
+  carId                  String      @id @default(auto()) @map("_id") @db.ObjectId
+  type                   String
+  name                   String
+  model                  String
+  carInfo                Json
+  User                   User?       @relation(fields: [userUserId], references: [userId])
+  userUserId             String?     @db.ObjectId
+  Dealership             Dealership? @relation(fields: [dealershipDealershipId], references: [dealershipId])
+  dealershipDealershipId String?     @db.ObjectId
+  Deal                   Deal[]
+}
+
+model SoldVehicle {
+  vehicleId   String @id @default(auto()) @map("_id") @db.ObjectId
+  carId       String
+  vehicleInfo Json
+
+  Dealership             Dealership? @relation(fields: [dealershipDealershipId], references: [dealershipId])
+  dealershipDealershipId String?     @db.ObjectId
+}
